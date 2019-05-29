@@ -7,7 +7,7 @@ import time
 # dataset_name = "blog_perturb"
 dataset_name = "congress"
 # dataset_name = "Disney"
-# dataset_name = "flickr"
+#dataset_name = "flickr"
 # dataset_name = "wiki"
 
 file_name_dic = {'aminer': 'aminer/aminer_duicheng',
@@ -38,7 +38,7 @@ i=1
 G=[]
 A=[]
 while mat_contents is not None:
-    i=i+1
+    i = i+1
     Network=mat_contents[NetworkMatrixFileName]
     Attribute=mat_contents[AttributeMatrixFileName]
     # print('the data type of ndarray:',Network.dtype)
@@ -70,26 +70,37 @@ while mat_contents is not None:
 
 '''################# Multilayer Network Tax Evasion Detection #################'''
 print("Multilayer Network Tax Evasion Detection (MNTED)")
+# use use_method to control the new or origin method
+# if use_method != "new" then algorithm will use the origin method
+
+use_method = "new"
+#use_method = "origin"
+
+print("use " + use_method + " method")
 start_time = time.time()
-V_MNTED = MNTED(G, A, d, lambd, rho).function()
-V_MNTED_time=time.time() - start_time
+V_MNTED = MNTED(G, A, d, lambd=lambd, rho=rho, method=use_method).train()
+V_MNTED_time = time.time() - start_time
 print("time elapsed: {:.2f}s".format(V_MNTED_time))
 
 '''################# MNTED for a Pure Network #################'''
 print("MNTED for a pure network:")
 start_time = time.time()
-V_Net = MNTED(G, G, d, lambd, rho).function()
+V_Net = MNTED(G, G, d, lambd=lambd, rho=rho, method=use_method).train()
 V_Net_time=time.time() - start_time
 print("time elapsed: {:.2f}s".format(V_Net_time))
 
 '''################# Save the embedding result into files #################'''
 for g in range(len(V_MNTED)):
+    print("g is " + str(g))
+    print(V_MNTED[g])
     sio.savemat("result/"+file_name+str(g)+'_Embedding.mat', {"V_MNTED": V_MNTED[g], "V_Net": V_Net[g]})
 print("Embedding.mat printed")
 
-data=open("result/"+file_name+"_"+"embedding_time_result"+".txt",'a+')
-print("Dataset:",dataset_name,file=data)
-print("time length:",len(V_MNTED),file=data)
-print("Time spent on MNTED: %.12f s"  %(V_MNTED_time),file=data)
-print("Time spent on NET: %.12f s"  %(V_Net_time),file=data)
+print("data file path is result/" + file_name + "_" + "embedding_time_result.txt")
+data = open("result/"+file_name+"_"+"embedding_time_result"+".txt", 'a+')
+print("Dataset:", dataset_name, file=data)
+print("Method:" + use_method, file=data)
+print("time length:", len(V_MNTED), file=data)
+print("Time spent on MNTED: %.12f s" % V_MNTED_time, file=data)
+print("Time spent on NET: %.12f s" % V_Net_time, file=data)
 data.close()
